@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+
+set -e
+
+. "./bin/functions"
+test -f .envrc && . "./.envrc"
+
+pp_info "ci" "running local ci script"
+echo ""
+
+pp_info "ci" "running linters"
+./bin/lint
+echo ""
+
+pp_info "ci" "running tests"
+./bin/test
+
+pp_success "ci" "ci passed!"

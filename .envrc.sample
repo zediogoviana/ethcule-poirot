@@ -1,0 +1,4 @@
+export NEO4J_USER="user"
+export NEO4J_PASSWORD="password"
+export DATABASE_URL="url"
+export API_URL="https://blockscout.com/eth/mainnet/graphiql"

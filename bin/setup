@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+
+set -e
+. "./bin/functions"
+
+env=${1:-"dev"}
+
+pp_info "setup" "Setting up the env..."
+if [ ! -f .envrc ]; then
+  cp .envrc.sample .envrc
+  printf "env file created, you might want to open .envrc and set the correct values. We recommend using direnv to manage it.\n\n"
+else
+  printf "envrc file already exists, skipping...\n\n"
+fi
+
+pp_info "setup" "Installing required languages..."
+
+if not_installed "asdf"; then
+  pp_error "setup" "
+    We are using asdf (https://github.com/asdf-vm/asdf) to manage tool
+    dependencies, since it was not found on your system we cannot ensure that you
+    are using the correct versions of all the tools. Please install it and run
+    this script again, or proceed at your own peril.
+  "
+
+  ensure_confirmation
+else
+  set +e
+  asdf plugin-add erlang https://github.com/asdf-vm/asdf-erlang.git 2>/dev/null
+  asdf plugin-add elixir https://github.com/asdf-vm/asdf-elixir.git 2>/dev/null
+  set -e
+
+  asdf install
+fi
+
+. "./.envrc"
+
+echo ""
+pp_info "setup" "Installing elixir dependencies..."
+MIX_ENV=$env mix local.hex --force
+MIX_ENV=$env mix local.rebar --force
+MIX_ENV=$env mix deps.get
+
+echo ""
+pp_success "setup" "You're good to go! Run bin/server to get the development server running."

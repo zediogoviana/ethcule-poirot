@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+set -e
+. "./bin/functions"
+test -f .envrc && . "./.envrc"
+
+iex -S mix
