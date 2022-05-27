@@ -3,6 +3,7 @@ defmodule Neo4j.Client do
 
   use GenServer
   alias Bolt.Sips, as: Neo
+  alias Neo4j.Cypher
 
   def start_link(_initial_state) do
     initial_state = %{conn: Neo.conn()}
@@ -24,11 +25,15 @@ defmodule Neo4j.Client do
   end
 
   def handle_info({:paint_node, eth_address, new_label_string}, state) do
-    cypher = """
-      MATCH (n:Account)
-      WHERE n.eth_address = '#{String.downcase(eth_address)}'
-      SET n:#{new_label_string}
-    """
+    downcased_address = String.downcase(eth_address)
+
+    cypher =
+      """
+        MATCH (n:Account)
+        WHERE n.eth_address = '{{address}}'
+        SET n:{{label}}
+      """
+      |> Cypher.prepared_statement(address: downcased_address, label: new_label_string)
 
     state.conn
     |> Neo.query(cypher)
@@ -54,12 +59,19 @@ defmodule Neo4j.Client do
         transaction["node"]["toAddressHash"]
       end
 
-    cypher = """
-      MERGE (AAA#{to_address}:Account {eth_address: '#{to_address}'})
-      MERGE (AAA#{from_address}:Account {eth_address: '#{from_address}'})
+    cypher =
+      """
+        MERGE (AAA{{to_address}}:Account {eth_address: '{{to_address}}'})
+        MERGE (AAA{{from_address}}:Account {eth_address: '{{from_address}}'})
 
-      MERGE (AAA#{from_address})-[:SENT {value: '#{transaction["node"]["value"]}', status: '#{transaction["node"]["status"]}'}]->(AAA#{to_address})
-    """
+        MERGE (AAA{{from_address}})-[:SENT {value: '{{value}}', status: '{{status}}'}]->(AAA{{to_address}})
+      """
+      |> Cypher.prepared_statement(
+        to_address: to_address,
+        from_address: from_address,
+        value: transaction["node"]["value"],
+        status: transaction["node"]["status"]
+      )
 
     state.conn
     |> Neo.query(cypher)

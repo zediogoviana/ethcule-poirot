@@ -87,7 +87,6 @@ Neo4j.Client.clear_database
 ## Future Development Ideas
 
 - [ ] Add Tests using [Mox](https://hexdocs.pm/mox/Mox.html) to interact with the Blockscout API and Neo4j.
-- [ ] Create an escape struct for `Neo4j.Client`, aka figure out Prepared statements in Neo4j. [Label injection](https://neo4j.com/developer/kb/protecting-against-cypher-injection/) and [Reserved keywords](https://neo4j.com/docs/cypher-manual/current/syntax/reserved/) in Neo4j.
 - [ ] Create an Adapter for the `AddressExplorer` to work with different APIs or even an Ethereum Node.
 - [ ] Request more transactions per wallet, using the GraphQL cursors.
 - [ ] Create a scheduler to pick from the `remaining` pool of addresses and set concurrency number. [Poolboy](https://elixirschool.com/en/lessons/misc/poolboy) for reference.
