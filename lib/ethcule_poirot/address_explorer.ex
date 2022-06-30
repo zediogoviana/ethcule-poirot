@@ -1,6 +1,6 @@
 defmodule EthculePoirot.AddressExplorer do
   @moduledoc false
-
+  require Logger
   use GenServer, restart: :transient
 
   alias EthculePoirot.NetworkExplorer
@@ -10,7 +10,7 @@ defmodule EthculePoirot.AddressExplorer do
 
     # to not be rate limited by API
     random_sleep = Enum.random(5_000..60_000)
-    IO.puts("Querying #{eth_address} | Delay: #{random_sleep / 1000}s")
+    Logger.info("Querying #{eth_address} | Delay: #{random_sleep / 1000}s")
 
     if Mix.env() != :test do
       Process.send_after(pid, :start, random_sleep)
@@ -83,16 +83,16 @@ defmodule EthculePoirot.AddressExplorer do
   end
 
   defp final_node_type(_request_result, eth_address) do
-    IO.puts("Failed to obtain address type for #{eth_address}")
+    Logger.info("Failed to obtain address type for #{eth_address}")
     nil
   end
 
   defp process_transactions({:ok, %Neuron.Response{body: body}}, eth_address, depth) do
-    transactions = body["data"]["address"]["transactions"]["edges"]
+    transactions = body["data"]["address"]["transactions"]["edges"] || []
     contract_code = body["data"]["address"]["contractCode"]
     update_node_type(contract_code, eth_address)
 
-    Enum.map(transactions, fn trx ->
+    Enum.each(transactions, fn trx ->
       next_address = Neo4j.Client.transaction_relation(eth_address, trx)
 
       NetworkExplorer.visiting_node(next_address, depth - 1)
@@ -100,7 +100,7 @@ defmodule EthculePoirot.AddressExplorer do
   end
 
   defp process_transactions(_request_result, eth_address, _depth) do
-    IO.puts("Failed ETH transactions for #{eth_address}")
+    Logger.info("Failed ETH transactions for #{eth_address}")
     nil
   end
 

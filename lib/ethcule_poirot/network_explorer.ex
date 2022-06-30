@@ -1,6 +1,6 @@
 defmodule EthculePoirot.NetworkExplorer do
   @moduledoc false
-
+  require Logger
   use GenServer
 
   alias EthculePoirot.DynamicSupervisor
@@ -34,7 +34,7 @@ defmodule EthculePoirot.NetworkExplorer do
 
   def handle_info({:visiting, eth_address, depth}, state) do
     if MapSet.member?(state.visited, eth_address) do
-      IO.puts("Already explored #{eth_address}")
+      Logger.info("Already explored #{eth_address}")
       {:noreply, state}
     else
       new_visited = MapSet.put(state.visited, eth_address)
@@ -52,7 +52,7 @@ defmodule EthculePoirot.NetworkExplorer do
     if MapSet.size(new_remaining) == 0 do
       Neo4j.Client.paint_node(state.eth_address, "Initial")
 
-      IO.puts("Fully explored #{state.eth_address}")
+      Logger.info("Fully explored #{state.eth_address}")
     end
 
     {:noreply, Map.merge(state, %{remaining: new_remaining})}
