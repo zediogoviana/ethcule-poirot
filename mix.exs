@@ -25,7 +25,8 @@ defmodule EthculePoirot.MixProject do
       {:jason, "~> 1.1"},
       {:neuron, "~> 5.0.0"},
       {:bolt_sips, "~> 2.0.0-rc"},
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:decimal, "~> 2.0"}
     ]
   end
 end

@@ -15,11 +15,20 @@ defmodule Neo4j.Client do
   end
 
   def handle_info(:clear_database, state) do
-    delete_relationships = "MATCH (a) -[r] -> () DELETE a, r"
-    delete_nodes = "MATCH (a) DELETE a"
+    cypher = "MATCH (a)-[r]->(b) DELETE a, r, b"
 
-    Neo.query(state.conn, delete_relationships)
-    Neo.query(state.conn, delete_nodes)
+    Neo.query(state.conn, cypher)
+
+    {:noreply, state}
+  end
+
+  def handle_info(:create_indexes, state) do
+    index_nodes = "CREATE INDEX EthAddressIndex IF NOT EXISTS FOR (a:Account) ON (a.eth_address)"
+
+    index_rel = "CREATE INDEX TransactionHashIndex IF NOT EXISTS FOR ()-[s:SENT]-() ON (s.hash)"
+
+    Neo.query(state.conn, index_nodes)
+    Neo.query(state.conn, index_rel)
 
     {:noreply, state}
   end
@@ -29,8 +38,7 @@ defmodule Neo4j.Client do
 
     cypher =
       """
-        MATCH (n:Account)
-        WHERE n.eth_address = '{{address}}'
+        MATCH (n:Account {eth_address: '{{address}}'})
         SET n:{{label}}
       """
       |> Cypher.prepared_statement(address: downcased_address, label: new_label_string)
@@ -61,15 +69,17 @@ defmodule Neo4j.Client do
 
     cypher =
       """
-        MERGE (AAA{{to_address}}:Account {eth_address: '{{to_address}}'})
-        MERGE (AAA{{from_address}}:Account {eth_address: '{{from_address}}'})
+        MERGE (to:Account {eth_address: '{{to_address}}'})
+        MERGE (from:Account {eth_address: '{{from_address}}'})
 
-        MERGE (AAA{{from_address}})-[:SENT {value: '{{value}}', status: '{{status}}'}]->(AAA{{to_address}})
+        MERGE (from)-[t:SENT {hash: '{{hash}}', eth_value: '{{value}}'}]->(to)
+        SET t.status = '{{status}}'
       """
       |> Cypher.prepared_statement(
         to_address: to_address,
         from_address: from_address,
-        value: transaction["node"]["value"],
+        hash: transaction["node"]["hash"],
+        value: wei_to_eth(transaction["node"]["value"]),
         status: transaction["node"]["status"]
       )
 
@@ -83,6 +93,10 @@ defmodule Neo4j.Client do
     send(__MODULE__, :clear_database)
   end
 
+  def create_indexes do
+    send(__MODULE__, :create_indexes)
+  end
+
   def paint_node(eth_address, new_label_string) do
     send(__MODULE__, {:paint_node, eth_address, new_label_string})
   end
@@ -92,6 +106,12 @@ defmodule Neo4j.Client do
   end
 
   def transaction_relation(eth_address, transaction) do
-    GenServer.call(__MODULE__, {:transaction_relation, eth_address, transaction})
+    GenServer.call(__MODULE__, {:transaction_relation, eth_address, transaction}, :infinity)
+  end
+
+  def wei_to_eth(value \\ 0) do
+    value
+    |> Decimal.div(10 ** 18)
+    |> Decimal.to_string(:normal)
   end
 end
