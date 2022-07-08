@@ -40,6 +40,8 @@ defmodule EthculePoirot.NetworkExplorer do
       new_visited = MapSet.put(state.visited, eth_address)
       new_remaining = MapSet.put(state.remaining, eth_address)
 
+      # api_impl = passed value or default from config
+
       DynamicSupervisor.start_address_explorer(eth_address, depth)
 
       {:noreply, Map.merge(state, %{visited: new_visited, remaining: new_remaining})}

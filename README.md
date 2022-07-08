@@ -87,7 +87,8 @@ Neo4j.Client.clear_database
 ## Future Development Ideas
 
 - [ ] Add Tests using [Mox](https://hexdocs.pm/mox/Mox.html) to interact with the Blockscout API and Neo4j.
-- [ ] Create an Adapter for the `AddressExplorer` to work with different APIs or even an Ethereum Node.
+- [ ] Create an Adapter for the `AddressExplorer` to work with different APIs and/or an Ethereum Node.
+- [ ] Create an Adapter for `Neo4J.Client`. This way the project can become agnostic on the underlying database provided that the new adapter specifies the Graph structure to be used. With it, we could explore SmartContracts in particular, and just use the project as tooling.
 - [ ] Request more transactions per wallet, using the GraphQL cursors provided by Blockscout API.
 - [ ] Create a scheduler to pick from the `remaining` pool of addresses and set a concurrency number. [Poolboy](https://elixirschool.com/en/lessons/misc/poolboy) for reference.
 - [ ] Differentiate `Pending`, `ERROR`, and `OK` transactions. Maybe different relationships. (For now, a solution is to use "conditional styling" for relationships in `Neo4J Bloom`.)
