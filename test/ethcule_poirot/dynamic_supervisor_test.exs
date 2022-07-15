@@ -13,7 +13,8 @@ defmodule EthculePoirot.DynamicSupervisorTest do
 
   describe "start_address_explorer/2" do
     test "adds an address explorer GenServer to the dynamic sup" do
-      assert {:ok, _pid} = DynamicSupervisor.start_address_explorer("0x123", 2)
+      api_adapter = Adapters.Api.Blockscout
+      assert {:ok, _pid} = DynamicSupervisor.start_address_explorer("0x123", 2, api_adapter)
     end
   end
 end

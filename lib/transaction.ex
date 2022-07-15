@@ -1,4 +1,6 @@
 defmodule Transaction do
+  @moduledoc false
+
   @enforce_keys [:hash, :to_address, :from_address, :value, :status]
   defstruct [:hash, :to_address, :from_address, :value, :status]
 

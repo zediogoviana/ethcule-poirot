@@ -1,11 +1,13 @@
 defmodule Adapters.Api.Blockscout do
+  @moduledoc false
   require Logger
 
   @behaviour Behaviours.Api
 
   @module_config Application.compile_env(:ethcule_poirot, __MODULE__)
 
-  def initial_setup() do
+  @impl true
+  def initial_setup do
     Neuron.Config.set(url: Keyword.get(@module_config, :api_url))
 
     Neuron.Config.set(
@@ -17,6 +19,7 @@ defmodule Adapters.Api.Blockscout do
     :ok
   end
 
+  @impl true
   def address_information(eth_address) do
     Neuron.query(
       """
@@ -31,6 +34,7 @@ defmodule Adapters.Api.Blockscout do
     |> final_node_type(eth_address)
   end
 
+  @impl true
   def transactions_for_address(eth_address) do
     Neuron.query(
       """
@@ -65,20 +69,24 @@ defmodule Adapters.Api.Blockscout do
     |> Decimal.to_string(:normal)
   end
 
+  @spec final_node_type({:ok, Neuron.Response.t()}, String.t()) :: Address.t()
   defp final_node_type({:ok, %Neuron.Response{body: body}}, _eth_address) do
-    contract_code = body["data"]["address"]["contractCode"]
+    contract_code = !!body["data"]["address"]["contractCode"]
+
     %Address{contract: contract_code}
   end
 
+  @spec final_node_type({:error, any()}, String.t()) :: Address.t()
   defp final_node_type(_request_result, eth_address) do
     Logger.warn("Failed to obtain address type for #{eth_address}")
 
     %Address{contract: false}
   end
 
+  @spec parse_transactions({:ok, any()}, String.t()) :: Address.t()
   defp parse_transactions({:ok, %Neuron.Response{body: body}}, eth_address) do
     transactions = body["data"]["address"]["transactions"]["edges"] || []
-    contract_code = body["data"]["address"]["contractCode"]
+    contract_code = !!body["data"]["address"]["contractCode"]
 
     transactions_struct =
       Enum.map(
@@ -99,6 +107,7 @@ defmodule Adapters.Api.Blockscout do
     }
   end
 
+  @spec parse_transactions({:error, any()}, String.t()) :: Address.t()
   defp parse_transactions(_request_result, eth_address) do
     Logger.warn("Failed ETH transactions for #{eth_address}")
 

@@ -10,12 +10,6 @@ Example of an Address network. Note that by default Smart Contracts and Initial 
 
 ![address network example](images/network-example.png)
 
-### Blockshout API
-
-[This API](https://blockscout.com/eth/mainnet/graphiql) is free to use and it already gives us transactions and addresses already organized with a lot of information that we need to build our own network.
-
-The downside of using it is rate limits from Cloudflare, and a low complexity GraphQL query, that only enables us to query 22 transactions at a time (with the current information we are requesting).
-
 ### Neo4J Database
 
 To store information we're using [Neo4J](https://neo4j.com/). It's a graph data platform, and that's exactly the structure we want to represent a network of Ethereum Addresses.
@@ -84,10 +78,31 @@ It's also possible to clear the database to delete all nodes and relationships, 
 Neo4j.Client.clear_database
 ```
 
+## API Adapters
+
+### Existing
+ - [Blockscout](https://blockscout.com/eth/mainnet/graphiql): It's free to use and it already gives us transactions and addresses already organized with a lot of information that we need to build our own network. 
+   The downside of using it is rate limits from Cloudflare, and a low complexity GraphQL query, that only enables us to query 22 transactions at a time (with the current information we are requesting).
+
+ 
+### How to implement new ones
+
+Just create a new file under `lib/adapters/api` and implement the respective behaviour.
+
+```
+defmodule Adapters.Api.NewApi do
+  @moduledoc false
+
+  @behaviour Behaviours.Api
+
+  # implementation here
+end
+```
+
 ## Future Development Ideas
 
 - [ ] Add Tests using [Mox](https://hexdocs.pm/mox/Mox.html) to interact with the Blockscout API and Neo4j.
-- [ ] Create an Adapter for the `AddressExplorer` to work with different APIs and/or an Ethereum Node.
+- [X] Create an Adapter for the `AddressExplorer` to work with different APIs and/or an Ethereum Node.
 - [ ] Create an Adapter for `Neo4J.Client`. This way the project can become agnostic on the underlying database provided that the new adapter specifies the Graph structure to be used. With it, we could explore SmartContracts in particular, and just use the project as tooling.
 - [ ] Request more transactions per wallet, using the GraphQL cursors provided by Blockscout API.
 - [ ] Create a scheduler to pick from the `remaining` pool of addresses and set a concurrency number. [Poolboy](https://elixirschool.com/en/lessons/misc/poolboy) for reference.
