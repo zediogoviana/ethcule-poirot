@@ -56,7 +56,7 @@ defmodule EthculePoirot.AddressExplorer do
         query($eth_address: AddressHash!) {
           address(hash: $eth_address) {
             contractCode
-            transactions(first: 22) {
+            transactions(last: 23, count: 23) {
               edges {
                 node {
                   hash
@@ -65,9 +65,6 @@ defmodule EthculePoirot.AddressExplorer do
                   value
                   status
                 }
-              }
-              pageInfo {
-                hasNextPage
               }
             }
           }
