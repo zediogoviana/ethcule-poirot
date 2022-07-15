@@ -57,14 +57,14 @@ defmodule Neo4j.Client do
   end
 
   def handle_call({:transaction_relation, eth_address, transaction}, _from, state) do
-    to_address = transaction["node"]["toAddressHash"]
-    from_address = transaction["node"]["fromAddressHash"]
+    to_address = transaction.to_address
+    from_address = transaction.from_address
 
     next_address =
-      if transaction["node"]["toAddressHash"] == eth_address do
-        transaction["node"]["fromAddressHash"]
+      if to_address == eth_address do
+        from_address
       else
-        transaction["node"]["toAddressHash"]
+        to_address
       end
 
     cypher =
@@ -78,9 +78,9 @@ defmodule Neo4j.Client do
       |> Cypher.prepared_statement(
         to_address: to_address,
         from_address: from_address,
-        hash: transaction["node"]["hash"],
-        value: wei_to_eth(transaction["node"]["value"]),
-        status: transaction["node"]["status"]
+        hash: transaction.hash,
+        value: transaction.value,
+        status: transaction.status
       )
 
     state.conn
@@ -107,11 +107,5 @@ defmodule Neo4j.Client do
 
   def transaction_relation(eth_address, transaction) do
     GenServer.call(__MODULE__, {:transaction_relation, eth_address, transaction}, :infinity)
-  end
-
-  def wei_to_eth(value \\ 0) do
-    value
-    |> Decimal.div(10 ** 18)
-    |> Decimal.to_string(:normal)
   end
 end

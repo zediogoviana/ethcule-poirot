@@ -11,8 +11,15 @@ defmodule EthculePoirot.DynamicSupervisor do
     DynamicSupervisor.start_child(__MODULE__, {NetworkExplorer, %{}})
   end
 
-  def start_address_explorer(eth_address, depth) do
-    spec = {AddressExplorer, %{eth_address: eth_address, depth: depth}}
+  def start_address_explorer(eth_address, depth, api_handler) do
+    spec =
+      {AddressExplorer,
+       %{
+         eth_address: eth_address,
+         depth: depth,
+         api_handler: api_handler
+       }}
+
     DynamicSupervisor.start_child(__MODULE__, spec)
   end
 

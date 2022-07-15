@@ -7,5 +7,8 @@ config :bolt_sips, Bolt,
   pool_size: 200
 
 config :ethcule_poirot,
+  default_api_adapter: Adapters.Api.Blockscout
+
+config :ethcule_poirot, Adapters.Api.Blockscout,
   api_url: System.get_env("API_URL"),
   api_timeout: 120_000

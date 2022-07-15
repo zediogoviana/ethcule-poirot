@@ -5,8 +5,10 @@ defmodule EthculePoirot.NetworkExplorer do
 
   alias EthculePoirot.DynamicSupervisor
 
-  def explore(eth_address, depth) do
-    send(__MODULE__, {:start, eth_address, depth})
+  @default_api_adapter Application.compile_env(:ethcule_poirot, :default_api_adapter)
+
+  def explore(eth_address, depth, api_adapter \\ @default_api_adapter) do
+    send(__MODULE__, {:start, eth_address, depth, api_adapter})
   end
 
   def start_link(initial_state) do
@@ -17,14 +19,16 @@ defmodule EthculePoirot.NetworkExplorer do
     {:ok, state}
   end
 
-  def handle_info({:start, eth_address, depth}, state) do
+  def handle_info({:start, eth_address, depth, api_adapter}, state) do
     downcased_address = String.downcase(eth_address)
+    api_adapter.initial_setup()
 
     new_state = %{
       eth_address: downcased_address,
       depth: depth,
       visited: MapSet.new(),
-      remaining: MapSet.new()
+      remaining: MapSet.new(),
+      api_adapter: api_adapter
     }
 
     send(__MODULE__, {:visiting, downcased_address, depth})
@@ -40,9 +44,7 @@ defmodule EthculePoirot.NetworkExplorer do
       new_visited = MapSet.put(state.visited, eth_address)
       new_remaining = MapSet.put(state.remaining, eth_address)
 
-      # api_impl = passed value or default from config
-
-      DynamicSupervisor.start_address_explorer(eth_address, depth)
+      DynamicSupervisor.start_address_explorer(eth_address, depth, state.api_adapter)
 
       {:noreply, Map.merge(state, %{visited: new_visited, remaining: new_remaining})}
     end
