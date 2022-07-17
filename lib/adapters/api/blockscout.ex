@@ -41,7 +41,7 @@ defmodule Adapters.Api.Blockscout do
         query($eth_address: AddressHash!) {
           address(hash: $eth_address) {
             contractCode
-            transactions(first: 22) {
+            transactions(last: 23, count: 23) {
               edges {
                 node {
                   hash
@@ -50,9 +50,6 @@ defmodule Adapters.Api.Blockscout do
                   value
                   status
                 }
-              }
-              pageInfo {
-                hasNextPage
               }
             }
           }
