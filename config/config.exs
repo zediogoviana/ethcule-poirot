@@ -10,5 +10,9 @@ config :ethcule_poirot,
   default_api_adapter: Adapters.Api.Blockscout
 
 config :ethcule_poirot, Adapters.Api.Blockscout,
-  api_url: System.get_env("API_URL"),
+  api_url: System.get_env("BLOCKSCOUT_API_URL"),
+  api_timeout: 120_000
+
+config :ethcule_poirot, Adapters.Api.DissrupTheGraph,
+  api_url: System.get_env("DISSRUP_THE_GRAPH_API_URL"),
   api_timeout: 120_000

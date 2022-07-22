@@ -83,6 +83,7 @@ Neo4j.Client.clear_database
 ### Existing
  - [Blockscout](https://blockscout.com/eth/mainnet/graphiql): It's free to use and it already gives us transactions and addresses already organized with a lot of information that we need to build our own network. 
    The downside of using it is rate limits from Cloudflare, and a low complexity GraphQL query, that only enables us to query 22 transactions at a time (with the current information we are requesting).
+ - [Dissrup TheGraph NFT sales](https://thegraph.com/hosted-service/subgraph/dissrup-admin/mainnet-v12): We can use any Subgraph present [here](https://thegraph.com/hosted-service/). Dissrup is a NFT marketplace, and using TheGraph's API it's possible to inspect NFT Sales. This is a proof of concept that the project doesn't need to explore only Ethereum transactions.
 
  
 ### How to implement new ones

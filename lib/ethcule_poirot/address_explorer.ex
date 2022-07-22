@@ -66,11 +66,11 @@ defmodule EthculePoirot.AddressExplorer do
     end)
   end
 
-  @spec update_node_type(boolean(), String.t()) :: any()
+  @spec update_node_type(true, String.t()) :: any()
   defp update_node_type(contract_code, eth_address) when contract_code do
     Neo4j.Client.paint_node(eth_address, "SmartContract")
   end
 
-  @spec update_node_type(nil, String.t()) :: any()
-  defp update_node_type(nil, _eth_address), do: :ok
+  @spec update_node_type(nil | false, String.t()) :: any()
+  defp update_node_type(_nil, _eth_address), do: :ok
 end
