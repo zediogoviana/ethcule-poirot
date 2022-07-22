@@ -12,14 +12,6 @@ defmodule EthculePoirot.Application do
       {EthculePoirot.DynamicSupervisor, []}
     ]
 
-    Neuron.Config.set(url: Application.fetch_env!(:ethcule_poirot, :api_url))
-
-    Neuron.Config.set(
-      connection_opts: [
-        recv_timeout: Application.fetch_env!(:ethcule_poirot, :api_timeout)
-      ]
-    )
-
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: EthculePoirot.Supervisor]
