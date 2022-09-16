@@ -74,12 +74,15 @@ defmodule Neo4j.Client do
         to_address
       end
 
+    ens_names = EnsHelpers.check_for_ens(to_address, from_address)
+
     cypher =
       """
         MERGE (to:Account {eth_address: '{{to_address}}'})
         MERGE (from:Account {eth_address: '{{from_address}}'})
+        SET to.ens_name = '{{to_ens}}', from.ens_name = '{{from_ens}}'
 
-        MERGE (from)-[t:SENT {hash: '{{hash}}', eth_value: '{{value}}'}]->(to)
+        MERGE (from)-[t:TO {hash: '{{hash}}', eth_value: '{{value}}'}]->(to)
         SET t.status = '{{status}}'
       """
       |> Cypher.prepared_statement(
@@ -87,7 +90,9 @@ defmodule Neo4j.Client do
         from_address: from_address,
         hash: transaction.hash,
         value: transaction.value,
-        status: transaction.status
+        status: transaction.status,
+        to_ens: ens_names.to_ens,
+        from_ens: ens_names.from_ens
       )
 
     state.conn
