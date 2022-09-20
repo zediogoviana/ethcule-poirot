@@ -2,13 +2,13 @@
 
 <img src="images/ethcule-poirot.jpg" width="100" />
 
-Application to explore Ethereum transactions using the Blocksout API and a Neo4J database to store nodes (accounts/smart contracts) and respective relationships, through a transaction.
+Application to explore Ethereum transactions using any API and a Neo4J database to store nodes (accounts/smart contracts) and respective relationships, through a transaction.
 
 The goal of this project is to start by exploring a specific Address, and then redo the same process for other Addresses of interest, and that correlate in some way with an existing one. This way, we're able to grow our Network in the direction we want to.
 
-Example of an Address network. Note that by default Smart Contracts and Initial Addresses (were you start exploring are marked in a different color).
-
 ![address network example](images/network-example.png)
+
+Recently, also added support for [ENS](https://ens.domains/), which means that addresses that have a name associated, will also have a `name` field in the respective node. This helps with visualization and identification of nodes when exploring the network.
 
 ### Neo4J Database
 
@@ -25,6 +25,30 @@ Looking at the image below, there's a clear structure for the supervision tree o
 - `EthculePoirot.NetworkExplorer`: is a GenServer that holds the Set of visited nodes, the ones that are being explored by `EthculePoirot.AddressExplorer` and other info required to manage the exploration step.
 
 ![supervision tree](images/supervision-tree.png)
+
+## API Adapters
+
+It's possible to use different APIs to index and build the desired network. For example, we can use an API that provides the Blockchain transaction history to map interactions between addresses, but we can also use an API like a [Subgraph](https://thegraph.com/hosted-service/) and build a network of interactions between an Address and one/several SmartContract(s).
+
+### Existing
+ - [Blockscout](https://blockscout.com/eth/mainnet/graphiql): It's free to use and it already gives us transactions and addresses already organized with a lot of information that we need to build our own network. 
+   The downside of using it is rate limits from Cloudflare, and a low complexity GraphQL query, that only enables us to query 22 transactions at a time (with the current information we are requesting).
+ - [Dissrup TheGraph NFT sales](https://thegraph.com/hosted-service/subgraph/dissrup-admin/mainnet-v12): Dissrup is a NFT marketplace, and using TheGraph's API it's possible to inspect NFT Sales. This is a proof of concept that the project doesn't need to explore only Ethereum transactions.
+
+ 
+### How to implement new ones
+
+Just create a new file under `lib/adapters/api` and implement the respective behaviour.
+
+```
+defmodule Adapters.Api.NewApi do
+  @moduledoc false
+
+  @behaviour Behaviours.Api
+
+  # implementation here
+end
+```
 
 ## Setup, lint, and tests
 
@@ -53,24 +77,23 @@ bin/server
 
 This will start the application and the respective Supervisors for the Explorers and Neo4j interactions.
 
-After the app starts, to start exploring just pass in an address, and an exploration depth to ` EthculePoirot.NetworkExplorer.explore/2`. It's advised to use a depth of 2, or 3 at most, due to API requests failing for higher values. (Take into account that the number of requests made increases exponentially with `depth`.)
+After the app starts, to start exploring just pass in an address, and an exploration depth to ` EthculePoirot.NetworkExplorer.explore/2`. It's advised to use a depth of 3, due to API requests failing for higher values. (Take into account that the number of requests made increases exponentially with `depth`.)
 
 ```elixir
+# using the Blockscout API as default
 address = "0xSomeAddress"
 depth = 2
 EthculePoirot.NetworkExplorer.explore(address, depth)
+
+# using a specific implemented API
+address = "0xSomeAddress"
+depth = 2
+EthculePoirot.NetworkExplorer.explore(address, depth, Adapters.Api.DissrupTheGraph)
 ```
 
 Each step will be printed, and the exploration for the given address is completed when the following line appears `Fully explored 0xSomeAddress`.
 
 After this, you can check the Neo4j database and play around with it (using `Neo4j Bloom`, for example). Assuming you want to explore more addresses of interest, you just redo the process above with a new address `address = 0xSomeAddress2`, and a new cluster will be created or appended to the existing one. This way, it's possible to follow through and explore the path you wish to.
-
-If you have some addresses you want to "highlight" (or mark with a `Interest` Label in Neo4j) you can run:
-
-```elixir
-addresses_list = ["0xAddress1", "0xAddress2"]
-Neo4jClient.highlight_accounts_of_interest(addresses_list)
-```
 
 It's also possible to clear the database to delete all nodes and relationships, to start explorating from scratch.
 
@@ -78,35 +101,13 @@ It's also possible to clear the database to delete all nodes and relationships, 
 Neo4j.Client.clear_database
 ```
 
-## API Adapters
-
-### Existing
- - [Blockscout](https://blockscout.com/eth/mainnet/graphiql): It's free to use and it already gives us transactions and addresses already organized with a lot of information that we need to build our own network. 
-   The downside of using it is rate limits from Cloudflare, and a low complexity GraphQL query, that only enables us to query 22 transactions at a time (with the current information we are requesting).
- - [Dissrup TheGraph NFT sales](https://thegraph.com/hosted-service/subgraph/dissrup-admin/mainnet-v12): We can use any Subgraph present [here](https://thegraph.com/hosted-service/). Dissrup is a NFT marketplace, and using TheGraph's API it's possible to inspect NFT Sales. This is a proof of concept that the project doesn't need to explore only Ethereum transactions.
-
- 
-### How to implement new ones
-
-Just create a new file under `lib/adapters/api` and implement the respective behaviour.
-
-```
-defmodule Adapters.Api.NewApi do
-  @moduledoc false
-
-  @behaviour Behaviours.Api
-
-  # implementation here
-end
-```
-
 ## Future Development Ideas
 
-- [ ] Add Tests using [Mox](https://hexdocs.pm/mox/Mox.html) to interact with the Blockscout API and Neo4j.
 - [X] Create an Adapter for the `AddressExplorer` to work with different APIs and/or an Ethereum Node.
+- [X] Add support for ENS for highlighting accounts of interest.
+- [ ] Add Tests using [Mox](https://hexdocs.pm/mox/Mox.html) to interact with the Blockscout API and Neo4j.
 - [ ] Create an Adapter for `Neo4J.Client`. This way the project can become agnostic on the underlying database provided that the new adapter specifies the Graph structure to be used. With it, we could explore SmartContracts in particular, and just use the project as tooling.
 - [ ] Request more transactions per wallet, using the GraphQL cursors provided by Blockscout API.
 - [ ] Create a scheduler to pick from the `remaining` pool of addresses and set a concurrency number. [Poolboy](https://elixirschool.com/en/lessons/misc/poolboy) for reference.
 - [ ] Differentiate `Pending`, `ERROR`, and `OK` transactions. Maybe different relationships. (For now, a solution is to use "conditional styling" for relationships in `Neo4J Bloom`.)
 - [ ] Explore through internal transactions, also.
-- [ ] Add support for ENS for highlighting accounts of interest.

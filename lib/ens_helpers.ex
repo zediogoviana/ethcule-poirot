@@ -21,17 +21,8 @@ defmodule EnsHelpers do
 
   @spec parse_ens_response({:ok, any()}) :: map()
   defp parse_ens_response({:ok, %Neuron.Response{body: body}}) do
-    to_ens =
-      case body["data"]["toAddress"] do
-        [] -> ""
-        list -> hd(list)["name"]
-      end
-
-    from_ens =
-      case body["data"]["fromAddress"] do
-        [] -> ""
-        list -> hd(list)["name"]
-      end
+    to_ens = retrieve_ens_name(body["data"]["toAddress"])
+    from_ens = retrieve_ens_name(body["data"]["fromAddress"])
 
     %{to_ens: to_ens, from_ens: from_ens}
   end
@@ -40,4 +31,9 @@ defmodule EnsHelpers do
   defp parse_ens_response(_request_result) do
     %{to_ens: "", from_ens: ""}
   end
+
+  @spec retrieve_ens_name(nil | list()) :: String.t()
+  defp retrieve_ens_name(nil), do: ""
+  defp retrieve_ens_name([]), do: ""
+  defp retrieve_ens_name([head | _tail]), do: head["name"]
 end
