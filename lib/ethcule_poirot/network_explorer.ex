@@ -6,7 +6,7 @@ defmodule EthculePoirot.NetworkExplorer do
   alias EthculePoirot.DynamicSupervisor
 
   @default_api_adapter Application.compile_env(:ethcule_poirot, :default_api_adapter)
-  @pool_size Application.get_env(:ethcule_poirot, :pool_size)
+  @pool_size Application.compile_env(:ethcule_poirot, :pool_size)
 
   @spec explore(String.t(), pos_integer(), atom() | any()) :: any()
   def explore(eth_address, depth, api_adapter \\ @default_api_adapter) do
