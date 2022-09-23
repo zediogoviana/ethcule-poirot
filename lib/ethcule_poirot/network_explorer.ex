@@ -74,11 +74,11 @@ defmodule EthculePoirot.NetworkExplorer do
     exploring_size = MapSet.size(new_exploring)
     remaining_size = length(state.remaining)
 
-    {processes_count, new_remaining} =
+    {processes_count, new_remaining, new_exploring} =
       remove_from_queue(
         exploring_size,
         remaining_size,
-        state
+        %{state | exploring: new_exploring}
       )
 
     {:noreply,
@@ -114,22 +114,24 @@ defmodule EthculePoirot.NetworkExplorer do
     {state.processes_count, new_remaining, state.exploring}
   end
 
-  @spec remove_from_queue(pos_integer(), pos_integer(), map()) :: {pos_integer(), list()}
+  @spec remove_from_queue(pos_integer(), pos_integer(), map()) ::
+          {pos_integer(), list(), MapSet.t()}
   defp remove_from_queue(0, 0, state) do
     Neo4j.Client.paint_node(state.eth_address, "Initial")
 
     Logger.info("Fully explored #{state.eth_address}")
-    {0, state.remaining}
+    {0, state.remaining, state.exploring}
   end
 
   defp remove_from_queue(_exploring_size, remaining_size, state) when remaining_size > 0 do
     {{next_address, next_depth}, new_remaining} = List.pop_at(state.remaining, 0)
+    new_exploring = MapSet.put(state.exploring, next_address)
 
     DynamicSupervisor.start_address_explorer(next_address, next_depth, state.api_adapter)
-    {state.processes_count, new_remaining}
+    {state.processes_count, new_remaining, new_exploring}
   end
 
   defp remove_from_queue(_exploring_size, _remaining_size, state) do
-    {state.processes_count - 1, state.remaining}
+    {state.processes_count - 1, state.remaining, state.exploring}
   end
 end
