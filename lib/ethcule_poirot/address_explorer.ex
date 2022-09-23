@@ -14,13 +14,8 @@ defmodule EthculePoirot.AddressExplorer do
   def start_link(%{eth_address: eth_address} = initial_state) do
     {:ok, pid} = GenServer.start_link(__MODULE__, initial_state)
 
-    # to not be rate limited by API
-    random_sleep = Enum.random(5_000..60_000)
-    Logger.info("Querying #{eth_address} | Delay: #{random_sleep / 1000}s")
-
-    if Mix.env() != :test do
-      Process.send_after(pid, :start, random_sleep)
-    end
+    Logger.info("Querying #{eth_address}")
+    send(pid, :start)
 
     {:ok, pid}
   end
@@ -35,7 +30,7 @@ defmodule EthculePoirot.AddressExplorer do
     address_information = state.api_handler.address_information(state.eth_address)
     update_node_type(address_information.contract, state.eth_address)
 
-    NetworkExplorer.visited_node(state.eth_address)
+    NetworkExplorer.node_visited(state.eth_address)
 
     {:stop, :normal, state}
   end
@@ -46,7 +41,7 @@ defmodule EthculePoirot.AddressExplorer do
     |> state.api_handler.transactions_for_address()
     |> handle_transactions(depth)
 
-    NetworkExplorer.visited_node(state.eth_address)
+    NetworkExplorer.node_visited(state.eth_address)
 
     {:stop, :normal, state}
   end
@@ -62,7 +57,7 @@ defmodule EthculePoirot.AddressExplorer do
           trx
         )
 
-      NetworkExplorer.visiting_node(next_address, depth - 1)
+      NetworkExplorer.visit_node(next_address, depth - 1)
     end)
   end
 
