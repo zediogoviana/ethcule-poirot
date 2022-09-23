@@ -22,7 +22,7 @@ By using Neo4J we're also able to use their built in services like [Bloom](https
 Looking at the image below, there's a clear structure for the supervision tree of this project. On one side we have Processes related to the Database interaction, and on the other we have processes that take care of the exploration of each address.
 
 - `Neo4j.Client`: is a GenServer that holds the `conn` in the state and exposes the respective API to exexute queries in the DB.
-- `EthculePoirot.NetworkExplorer`: is a GenServer that holds the Set of visited nodes, the ones that are being explored by `EthculePoirot.AddressExplorer` and other info required to manage the exploration step.
+- `EthculePoirot.NetworkExplorer`: is a GenServer that holds the Set of visited nodes, the ones that are being explored by `EthculePoirot.AddressExplorer` and other info required to manage the exploration step. It also manages the number of Addresses being explored at the same time, through a `pool_size` configuration.
 
 ![supervision tree](images/supervision-tree.png)
 
@@ -31,7 +31,7 @@ Looking at the image below, there's a clear structure for the supervision tree o
 It's possible to use different APIs to index and build the desired network. For example, we can use an API that provides the Blockchain transaction history to map interactions between addresses, but we can also use an API like a [Subgraph](https://thegraph.com/hosted-service/) and build a network of interactions between an Address and one/several SmartContract(s).
 
 ### Existing
- - [Blockscout](https://blockscout.com/eth/mainnet/graphiql): It's free to use and it already gives us transactions and addresses already organized with a lot of information that we need to build our own network. 
+ - [Blockscout](https://blockscout.com/eth/mainnet/graphiql): It's free to use and it returns transactions and addresses already organized with a lot of information that we need to build our own network. 
    The downside of using it is rate limits from Cloudflare, and a low complexity GraphQL query, that only enables us to query 22 transactions at a time (with the current information we are requesting).
  - [Dissrup TheGraph NFT sales](https://thegraph.com/hosted-service/subgraph/dissrup-admin/mainnet-v12): Dissrup is a NFT marketplace, and using TheGraph's API it's possible to inspect NFT Sales. This is a proof of concept that the project doesn't need to explore only Ethereum transactions.
 
@@ -77,7 +77,7 @@ bin/server
 
 This will start the application and the respective Supervisors for the Explorers and Neo4j interactions.
 
-After the app starts, to start exploring just pass in an address, and an exploration depth to ` EthculePoirot.NetworkExplorer.explore/2`. It's advised to use a depth of 3, due to API requests failing for higher values. (Take into account that the number of requests made increases exponentially with `depth`.)
+After the app starts, to start exploring just pass in an address, and an exploration depth to ` EthculePoirot.NetworkExplorer.explore/2`. (It's advised to use a depth of 3)
 
 ```elixir
 # using the Blockscout API as default
@@ -103,11 +103,7 @@ Neo4j.Client.clear_database
 
 ## Future Development Ideas
 
-- [X] Create an Adapter for the `AddressExplorer` to work with different APIs and/or an Ethereum Node.
-- [X] Add support for ENS for highlighting accounts of interest.
 - [ ] Add Tests using [Mox](https://hexdocs.pm/mox/Mox.html) to interact with the Blockscout API and Neo4j.
 - [ ] Create an Adapter for `Neo4J.Client`. This way the project can become agnostic on the underlying database provided that the new adapter specifies the Graph structure to be used. With it, we could explore SmartContracts in particular, and just use the project as tooling.
-- [ ] Request more transactions per wallet, using the GraphQL cursors provided by Blockscout API.
-- [ ] Create a scheduler to pick from the `remaining` pool of addresses and set a concurrency number. [Poolboy](https://elixirschool.com/en/lessons/misc/poolboy) for reference.
-- [ ] Differentiate `Pending`, `ERROR`, and `OK` transactions. Maybe different relationships. (For now, a solution is to use "conditional styling" for relationships in `Neo4J Bloom`.)
+- [ ] Request more transactions per wallet, using the GraphQL cursors provided by Blockscout API, or using a different API.
 - [ ] Explore through internal transactions, also.
