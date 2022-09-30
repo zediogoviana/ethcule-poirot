@@ -1,0 +1,31 @@
+version: "3.0"
+
+networks:
+  lan:
+
+services:
+  ethcule:
+    container_name: ethcule
+    build: .
+    networks:
+      - lan
+    ports:
+      - 3000:3000
+    volumes:
+        - ./:/usr/src/myapp
+    tty: true
+    stdin_open: true
+    depends_on:
+      - core1
+
+  core1:
+    container_name: core1
+    image: neo4j:latest
+    networks:
+      - lan
+    ports:
+      - 7474:7474
+      - 6477:6477
+      - 7687:7687
+    environment:
+      - NEO4J_AUTH=neo4j/test

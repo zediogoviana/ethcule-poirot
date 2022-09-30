@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+
+docker-compose up -d
+
+sleep 5
+
+echo "Ready? Try 'EthculePoirot.NetworkExplorer.explore(ADDRESS, DEPTH)'"
+docker attach $(docker ps -a | grep ethcule-poirot-ethcule | awk '{ print $1 }')

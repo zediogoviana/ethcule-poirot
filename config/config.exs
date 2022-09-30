@@ -2,7 +2,7 @@ import Config
 
 config :bolt_sips, Bolt,
   url: System.get_env("DATABASE_URL"),
-  ssl: true,
+  ssl: String.match?(System.get_env("DATABASE_URL", ""), ~r/^neo4j\+s:\/\/.*/),
   ssl_options: [verify: :verify_none],
   basic_auth: [username: System.get_env("NEO4J_USER"), password: System.get_env("NEO4J_PASSWORD")],
   pool_size: 200

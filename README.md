@@ -6,7 +6,9 @@ Application to explore Ethereum transactions using any API and a Neo4J database 
 
 The goal of this project is to start by exploring a specific Address, and then redo the same process for other Addresses of interest, and that correlate in some way with an existing one. This way, we're able to grow our Network in the direction we want to.
 
-![address network example](images/network-example.png)
+<p align="center">
+  <img src="images/network-example.png" width="500" />
+</p>
 
 Recently, also added support for [ENS](https://ens.domains/), which means that addresses that have a name associated, will also have a `name` field in the respective node. This helps with visualization and identification of nodes when exploring the network.
 
@@ -14,9 +16,10 @@ Recently, also added support for [ENS](https://ens.domains/), which means that a
 
 To store information we're using [Neo4J](https://neo4j.com/). It's a graph data platform, and that's exactly the structure we want to represent a network of Ethereum Addresses.
 
-Neo4J can be installed locally, but in this case, for an easier kickstart of the project we're using a fully managed cloud service called [Neo4J AuraDB](https://neo4j.com/cloud/platform/aura-graph-database/?ref=get-started-dropdown-cta). They offer a free version with a limit of 50k nodes and 175k relationships and that's what we're using for now.
+Neo4J can be installed locally, through several ways, and in this project we use their Docker image. 
 
-By using Neo4J we're also able to use their built in services like [Bloom](https://neo4j.com/product/bloom/) that gives access to explore and search our Graph in a very interactive way.
+There's also the possibility of using a fully managed cloud service called [Neo4J AuraDB](https://neo4j.com/cloud/platform/aura-graph-database/?ref=get-started-dropdown-cta). They offer a free version with a limit of 50k nodes and 175k relationships if you want to run a managed database.
+
 
 ## Project Structure
 Looking at the image below, there's a clear structure for the supervision tree of this project. On one side we have Processes related to the Database interaction, and on the other we have processes that take care of the exploration of each address.
@@ -52,13 +55,15 @@ end
 
 ## Setup, lint, and tests
 
-To setup just run
 
 ```
+# To setup Elixir locally without setting up a Neo4j DB
+# After, you need to update the `.envrc` with the correct variables.
 bin/setup
-``` 
 
-After, you need to update the `.envrc` with the correct variables.
+# or to setup everything inside Docker
+bin/setup_docker
+``` 
 
 There are the following scripts available, also:
 
@@ -69,10 +74,12 @@ bin/test
 
 ## How to Run
 
-To kickstart the app just run 
-
 ```
+# To run locally with a custom Neo4j DB
 bin/server
+
+# or to run everything inside Docker
+bin/server_docker
 ``` 
 
 This will start the application and the respective Supervisors for the Explorers and Neo4j interactions.

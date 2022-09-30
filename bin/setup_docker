@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+set -e
+. "./bin/functions"
+
+env=${1:-"dev"}
+
+pp_info "docker" "Building Docker Images..."
+
+docker-compose down
+docker-compose build

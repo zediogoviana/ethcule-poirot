@@ -1,5 +1,5 @@
-export NEO4J_USER="user"
-export NEO4J_PASSWORD="password"
-export DATABASE_URL="url"
+export NEO4J_USER="neo4j"
+export NEO4J_PASSWORD="test"
+export DATABASE_URL="neo4j://core1"
 export BLOCKSCOUT_API_URL="https://blockscout.com/eth/mainnet/graphiql"
 export DISSRUP_THE_GRAPH_API_URL="https://api.thegraph.com/subgraphs/name/dissrup-admin/mainnet-v12"

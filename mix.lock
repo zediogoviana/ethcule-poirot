@@ -1,5 +1,5 @@
 %{
-  "bolt_sips": {:hex, :bolt_sips, "2.0.11", "a1cb78d8db4aba750f6771a9fd4a10b3300618b7b0433b12105c64d21d27b4ba", [:mix], [{:calendar, "~> 0.17.2", [hex: :calendar, repo: "hexpm", optional: false]}, {:db_connection, "~> 2.4", [hex: :db_connection, repo: "hexpm", optional: false]}, {:jason, "~> 1.2", [hex: :jason, repo: "hexpm", optional: false]}, {:poison, "~> 3.1", [hex: :poison, repo: "hexpm", optional: false]}], "hexpm", "227a6669e14fa6d331738857b32b5cd022b4c13808e947ccfec8eccb8fedb0e5"},
+  "bolt_sips": {:git, "https://github.com/zediogoviana/bolt_sips", "07a4626cb669790bb49cff9f060946a25a3964d6", [branch: "zdv/configurable-tls-options"]},
   "bunt": {:hex, :bunt, "0.2.1", "e2d4792f7bc0ced7583ab54922808919518d0e57ee162901a16a1b6664ef3b14", [:mix], [], "hexpm", "a330bfb4245239787b15005e66ae6845c9cd524a288f0d141c148b02603777a5"},
   "calendar": {:hex, :calendar, "0.17.6", "ec291cb2e4ba499c2e8c0ef5f4ace974e2f9d02ae9e807e711a9b0c7850b9aee", [:mix], [{:tzdata, "~> 0.5.20 or ~> 0.1.201603 or ~> 1.0", [hex: :tzdata, repo: "hexpm", optional: false]}], "hexpm", "738d0e17a93c2ccfe4ddc707bdc8e672e9074c8569498483feb1c4530fb91b2b"},
   "certifi": {:hex, :certifi, "2.9.0", "6f2a475689dd47f19fb74334859d460a2dc4e3252a3324bd2111b8f0429e7e21", [:rebar3], [], "hexpm", "266da46bdb06d6c6d35fde799bcb28d36d985d424ad7c08b5bb48f5b5cdd4641"},

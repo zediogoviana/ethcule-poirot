@@ -4,8 +4,8 @@ defmodule EthculePoirot.MixProject do
   def project do
     [
       app: :ethcule_poirot,
-      version: "0.1.0",
-      elixir: "~> 1.13",
+      version: "0.5.0",
+      elixir: "~> 1.14.0",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -24,7 +24,10 @@ defmodule EthculePoirot.MixProject do
     [
       {:jason, "~> 1.1"},
       {:neuron, "~> 5.0.0"},
-      {:bolt_sips, "~> 2.0.0-rc"},
+      {
+        :bolt_sips,
+        git: "https://github.com/zediogoviana/bolt_sips", branch: "zdv/configurable-tls-options"
+      },
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:decimal, "~> 2.0"}
     ]

@@ -18,7 +18,10 @@ defmodule Neo4j.Client do
 
   @impl true
   def handle_info(:clear_database, state) do
-    cypher = "MATCH (a)-[r]->(b) DELETE a, r, b"
+    cypher = """
+      MATCH (a)-[r]->(b) DELETE a, r, b;
+      MATCH (c) DELETE c
+    """
 
     Neo.query(state.conn, cypher)
 
