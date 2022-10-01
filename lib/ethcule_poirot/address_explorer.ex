@@ -28,7 +28,7 @@ defmodule EthculePoirot.AddressExplorer do
   @impl true
   def handle_info(:start, %{depth: 0} = state) do
     address_information = state.api_handler.address_information(state.eth_address)
-    update_node_type(address_information.contract, state.eth_address)
+    update_node_label(address_information.contract, state.eth_address)
 
     NetworkExplorer.node_visited(state.eth_address)
 
@@ -47,13 +47,15 @@ defmodule EthculePoirot.AddressExplorer do
   end
 
   @spec handle_transactions(Address.t(), pos_integer()) :: any()
-  defp handle_transactions(address_information, depth) do
-    update_node_type(address_information.contract, address_information.eth_address)
+  defp handle_transactions(%{transactions: []} = address_info, _depth) do
+    update_node_label(address_info.contract, address_info.eth_address)
+  end
 
-    Enum.each(address_information.transactions, fn trx ->
+  defp handle_transactions(address_info, depth) do
+    Enum.each(address_info.transactions, fn trx ->
       next_address =
         Neo4j.Client.transaction_relation(
-          address_information.eth_address,
+          address_info,
           trx
         )
 
@@ -61,11 +63,13 @@ defmodule EthculePoirot.AddressExplorer do
     end)
   end
 
-  @spec update_node_type(true, String.t()) :: any()
-  defp update_node_type(contract_code, eth_address) when contract_code do
-    Neo4j.Client.paint_node(eth_address, "SmartContract")
+  @spec update_node_label(true, String.t()) :: any()
+  defp update_node_label(contract_code, eth_address) when contract_code do
+    Neo4j.Client.set_node_label(eth_address, "SmartContract")
   end
 
-  @spec update_node_type(nil | false, String.t()) :: any()
-  defp update_node_type(_nil, _eth_address), do: :ok
+  @spec update_node_label(nil | false, String.t()) :: any()
+  defp update_node_label(_contract, eth_address) do
+    Neo4j.Client.set_node_label(eth_address, "Account")
+  end
 end
