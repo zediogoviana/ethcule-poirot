@@ -2,7 +2,7 @@
 
 <img src="images/ethcule-poirot.jpg" width="100" />
 
-Application to explore Ethereum transactions using any API and a Neo4J database to store nodes (accounts/smart contracts) and respective relationships, through a transaction.
+Application to explore Ethereum transactions using any API and a Neo4j database to store nodes (accounts/smart contracts) and respective relationships, through a transaction.
 
 The goal of this project is to start by exploring a specific Address, and then redo the same process for other Addresses of interest, and that correlate in some way with an existing one. This way, we're able to grow our Network in the direction we want to.
 
@@ -12,13 +12,13 @@ The goal of this project is to start by exploring a specific Address, and then r
 
 Recently, also added support for [ENS](https://ens.domains/), which means that addresses that have a name associated, will also have a `name` field in the respective node. This helps with visualization and identification of nodes when exploring the network.
 
-### Neo4J Database
+### Neo4j Database
 
-To store information we're using [Neo4J](https://neo4j.com/). It's a graph data platform, and that's exactly the structure we want to represent a network of Ethereum Addresses.
+To store information we're using [Neo4j](https://neo4j.com/). It's a graph data platform, and that's exactly the structure we want to represent a network of Ethereum Addresses.
 
-Neo4J can be installed locally, through several ways, and in this project we use their Docker image. 
+Neo4j can be installed locally, through several ways, and in this project we're using their Docker image.
 
-There's also the possibility of using a fully managed cloud service called [Neo4J AuraDB](https://neo4j.com/cloud/platform/aura-graph-database/?ref=get-started-dropdown-cta). They offer a free version with a limit of 50k nodes and 175k relationships if you want to run a managed database.
+There's also the possibility of using a cloud service called [Neo4j AuraDB](https://neo4j.com/cloud/platform/aura-graph-database/?ref=get-started-dropdown-cta). They offer a free version with a limit of 50k nodes and 175k relationships if you want to run a fully managed database.
 
 
 ## Project Structure
@@ -43,20 +43,25 @@ It's possible to use different APIs to index and build the desired network. For 
 
 Just create a new file under `lib/adapters/api` and implement the respective behaviour.
 
-```
+```elixir
 defmodule Adapters.Api.NewApi do
-  @moduledoc false
-
   @behaviour Behaviours.Api
 
-  # implementation here
+  @impl true
+  def initial_setup, do: # code
+
+  @impl true
+  def transactions_for_address(address), do: # code
+  
+  @impl true
+  def address_information(address), do: # code
 end
 ```
 
 ## Setup, lint, and tests
 
 
-```
+```bash
 # To setup Elixir locally without setting up a Neo4j DB
 # After, you need to update the `.envrc` with the correct variables.
 bin/setup
@@ -67,14 +72,14 @@ bin/setup_docker
 
 There are the following scripts available, also:
 
-```
+```bash
 bin/lint
 bin/test
 ```
 
 ## How to Run
 
-```
+```bash
 # To run locally with a custom Neo4j DB
 bin/server
 
@@ -111,6 +116,6 @@ Neo4j.Client.clear_database
 ## Future Development Ideas
 
 - [ ] Add Tests using [Mox](https://hexdocs.pm/mox/Mox.html) to interact with the Blockscout API and Neo4j.
-- [ ] Create an Adapter for `Neo4J.Client`. This way the project can become agnostic on the underlying database provided that the new adapter specifies the Graph structure to be used. With it, we could explore SmartContracts in particular, and just use the project as tooling.
+- [ ] Create an Adapter for `Neo4j.Client`. This way the project can become agnostic on the underlying database provided that the new adapter specifies the Graph structure to be used. With it, we could explore SmartContracts in particular, and just use the project as tooling.
 - [ ] Request more transactions per wallet, using the GraphQL cursors provided by Blockscout API, or using a different API.
 - [ ] Explore through internal transactions, also.
