@@ -26,7 +26,7 @@ defmodule EthculePoirot.MixProject do
       {:neuron, "~> 5.0.0"},
       {
         :bolt_sips,
-        git: "https://github.com/zediogoviana/bolt_sips", branch: "zdv/configurable-tls-options"
+        git: "https://github.com/zediogoviana/bolt_sips", branch: "master"
       },
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:decimal, "~> 2.0"}
