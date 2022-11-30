@@ -67,6 +67,7 @@ end
 bin/setup
 
 # or to setup everything inside Docker
+# to use Neo4j with Docker, comment out `:ssl` option in the `config/config.exs` file
 bin/setup_docker
 ``` 
 
