@@ -2,6 +2,7 @@ import Config
 
 config :bolt_sips, Bolt,
   url: System.get_env("DATABASE_URL"),
+  # Comment out ssl if using local connection
   ssl: [verify: :verify_none],
   basic_auth: [username: System.get_env("NEO4J_USER"), password: System.get_env("NEO4J_PASSWORD")],
   pool_size: 200
