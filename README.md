@@ -114,6 +114,10 @@ It's also possible to clear the database to delete all nodes and relationships, 
 Neo4j.Client.clear_database
 ```
 
+## Example Cypher Queries
+
+[In this file you can find some example queries to run in your Neo4j Server](DOCS/example_cypher_queries.md)
+
 ## Future Development Ideas
 
 - [ ] Add Tests using [Mox](https://hexdocs.pm/mox/Mox.html) to interact with the Blockscout API and Neo4j.
