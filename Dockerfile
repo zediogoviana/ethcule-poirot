@@ -24,7 +24,7 @@ WORKDIR /app
 ENV NEO4J_USER="neo4j"
 ENV NEO4J_PASSWORD="test"
 ENV DATABASE_URL="neo4j://core1"
-ENV BLOCKSCOUT_API_URL="https://blockscout.com/eth/mainnet/graphiql"
+ENV BLOCKSCOUT_API_URL="https://eth.blockscout.com/graphiql"
 ENV DISSRUP_THE_GRAPH_API_URL="https://api.thegraph.com/subgraphs/name/dissrup-admin/mainnet-v12"
 
 RUN mix local.hex --force
